@@ -235,7 +235,11 @@ function problem9()
 
     efficiency = 25u"percent"
     Lc = 2.33 * Measurements.uncertainty(background_rate * time)
-    min_count_rate = (total_rate * time - background_rate * time) /time
+    println(Lc)
+    ND = Lc + 1.64 * Measurements.uncertainty(source_rate * time)
+    println(ND)
+    ND = ND ± √(ND + Measurements.value(background_rate * time))
+    min_count_rate = ND / time 
     min_activity = min_count_rate / (yield * efficiency)
     println("\tMinimum Detectable Activity: $(uconvert(u"Bq", min_activity))")
 end
