@@ -178,7 +178,7 @@ function problem3()
     u = (x + y - z) / (2 * x * y)
     println("\tEquation:\tτ = $(substitute(u, Dict([x => M₁, y => M₂, z => M₁₂])))")
     σᵤ = error_prop(u, M₁, M₂, M₁₂)
-    println("\tError Equation:\tστ = √($(simplify(substitute(expand_derivatives(σᵤ), Dict([x => M₁, y => M₂, z => M₁₂])))))")
+    println("\tError Equation:\tστ = √($(substitute(expand_derivatives(σᵤ), Dict([x => M₁, y => M₂, z => M₁₂]))))")
 end
 
 function problem4()
@@ -284,9 +284,16 @@ function problem9()
     time = 60u"s"
     total_rate = 360.06u"s^-1"
     source_rate = 279.85u"s^-1"
-    background_rate = (total_rate * time - source_rate * time) / time
-    background_rate = background_rate ± √background_rate * 1u"s^-(1/2)"
-    total_rate = total_rate ± √total_rate * 1u"s^-(1/2)"
+    background_rate = total_rate - source_rate
+    background_rate = (background_rate * time ± √(background_rate * time)) / time
+    total_rate = (total_rate * time ± √(total_rate * time)) / time
+    source_rate = total_rate - background_rate
+
+    println("\nProblem 9:")
+    println("Source rate:\t", source_rate)
+    println("Total rate:\t", total_rate)
+    println("Background rate:\t", background_rate)
+
     source_rate = total_rate - background_rate
 
     A₀ = (2.74e5 ± 2.74e4)u"Bq"
@@ -295,17 +302,13 @@ function problem9()
     A = A₀ * exp(-λ * t)
     efficiency = source_rate / (yield * A)
 
-    println("\nProblem 9:")
     println("(i):\n\tActivity:\t$A")
     println("\tEfficiency:\t$(uconvert(u"percent", efficiency))")
 
     println("(ii)")
 
     efficiency = 25u"percent"
-    Lc = 2.33 * Measurements.uncertainty(background_rate * time)
-    ND = Lc + 1.64 * Measurements.uncertainty(source_rate * time)
-    ND = ND ± √(ND + Measurements.value(background_rate * time))
-    min_count_rate = ND / time
+    min_count_rate = (4.65 * √(background_rate * time) + 2.71) / time
     min_activity = min_count_rate / (yield * efficiency)
     println("\tMinimum Detectable Activity: $(uconvert(u"Bq", min_activity))")
 end
